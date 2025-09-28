@@ -6,7 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Models\Role;
 
 class User extends Authenticatable
@@ -40,34 +40,36 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * The attributes that should be cast.
      *
-     * @return array<string, string>
+     * @var array<string,string>
      */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
 
     public function isAdmin(): bool{
-        return $this->hasRole('admin');
+        return $this->hasRole('Admin');
     }
 
-    public function roles(){
-        return $this->belongsToMany(Role::class, 'web_role_user', 'user_id', 'role_id');
+    public function roles(): BelongsToMany{
+        return $this->belongsToMany(Role::class, 'web_role_user', 'user_id', 'role_id')->withTimestamps();
     }
 
-    public function hasRole($roleName): bool{
-        if (Auth::check()) {
-            foreach (Auth::user()->roles as $role) {
-                if ($role->name === $roleName) {
-                    return true;
-                }
-            }
+    public function hasRole(string $roleName): bool{
+        return $this->roles()->where('name', $roleName)->exists();
+    }
+
+    public function assignRole(Role $role): void{
+        if (!$this->hasRole($role->name)) {
+            // asignar por relacion de id
+            $this->roles()->attach($role->id);
+            // Fallback: si falla el populate, actualizar timestamp de forma explicita
+            // $this->roles()->newPivotStatement()
+            //     ->where('user_id', $this->id)
+            //     ->where('role_id', $role->id)
+            //     ->update(['created_at' => now(), 'updated_at' => now()]);
         }
-        return false;
     }
 }

@@ -54,6 +54,36 @@
     showMenu.value = !showMenu.value;
   }
 
+  function csrfToken(){
+    try {
+      const el = document.querySelector('meta[name="csrf-token"]');
+      return el ? String(el.getAttribute('content')) : '';
+    } catch (e) {
+      return '';
+    }
+  }
+
+  async function logout(){
+    try{
+      const url = route('steam.logout');
+      const token = csrfToken();
+      await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-XSRF-TOKEN': token,
+          'X-CSRF-TOKEN': token,
+        },
+        credentials: 'same-origin',
+      });
+      // Redirect to home after logout
+      window.location.href = route('home');
+    }catch(e){
+      // fallback: navigate to home
+      window.location.href = route('home');
+    }
+  }
+
   onMounted(() => {
     lastY = window.scrollY || 0;
     window.addEventListener('scroll', onScrollTick, { passive: true });
@@ -157,10 +187,10 @@
           <span class="mx-6 h-6 w-[3px] rounded bg-white/20"></span>
 
           <template v-if="isLogged">
-            <a href="" class="hex-btn relative group inline-flex items-center gap-2 h-10 px-5 text-white hover:text-primary"><i class="fa-solid fa-user"></i></a>
-            <a :href="route('steam.logout')" class="hex-btn relative group inline-flex items-center gap-2 h-10 px-5 text-white hover:text-primary"><i class="fa-solid fa-right-from-bracket"></i></a>
+            <a href="#" class="hex-btn relative group inline-flex items-center gap-2 h-10 px-5 text-white hover:text-primary"><i class="fa-solid fa-user"></i></a>
+            <button @click.prevent="logout" class="hex-btn relative group inline-flex items-center gap-2 h-10 px-5 text-white hover:text-primary"><i class="fa-solid fa-right-from-bracket"></i></button>
           </template>
-          <a v-else="!isLogged" :href="route('steam.auth')" class="hex-btn relative group inline-flex items-center gap-2 h-10 px-5 text-primary">
+          <a v-else :href="route('steam.auth')" class="hex-btn relative group inline-flex items-center gap-2 h-10 px-5 text-primary">
             <!-- BORDE BASE: SIEMPRE visible hasta que haya hover -->
             <svg class="absolute inset-0 h-full w-full pointer-events-none" viewBox="0 0 300 100" preserveAspectRatio="none" aria-hidden="true">
               <path

@@ -10,6 +10,7 @@ use Illuminate\Routing\Redirector;
 use Ilzrv\LaravelSteamAuth\SteamAuthenticator;
 use Ilzrv\LaravelSteamAuth\SteamUserDto;
 use App\Models\User;
+use App\Models\Role;
 use Inertia\Inertia;
 use Inertia\Response;
 use Ilzrv\LaravelSteamAuth\Exceptions\Validation\ValidationException;
@@ -58,6 +59,15 @@ final class SteamAuthController
                 'steam_avatar' => $steamUser->getAvatarFull(),
             ]
         );
+        
+        //? Asignar rol 'user' si no tiene ningún rol
+        if ($user->roles()->count() === 0) {
+            $role = Role::where('name', 'User')->first();
+
+            if($role){
+                $user->assignRole($role);
+            }
+        }
 
         // dd($steamUser->getSteamId());
         // die();

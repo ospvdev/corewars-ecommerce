@@ -39,47 +39,46 @@ interface SidebarContextType {
 const SidebarSymbol = Symbol()
 
 export function useSidebarProvider() {
-  const isExpanded = ref(true)
-  isExpanded.value = true
-  const isMobileOpen = ref(false)
-  const isMobile = ref(false)
-  const isHovered = ref(false)
-  const activeItem = ref<string | null>(null)
-  const openSubmenu = ref<string | null>(null)
+  const isExpanded = ref(true);
+  isExpanded.value = true;
+  const isMobileOpen = ref(false);
+  const isMobile = ref(false);
+  const isHovered = ref(false);
+  const activeItem = ref<string | null>(null);
+  const openSubmenu = ref<string | null>(null);
 
   const handleResize = () => {
-    const mobile = window.innerWidth < 768
-    isMobile.value = mobile
+    const mobile = window.innerWidth < 768;
+    isMobile.value = mobile;
     if (!mobile) {
-      isMobileOpen.value = false
+      isMobileOpen.value = false;
     }
   }
 
   onMounted(() => {
-    handleResize()
-    window.addEventListener('resize', handleResize)
+    handleResize();
+    window.addEventListener('resize', handleResize);
   })
 
   onUnmounted(() => {
-    window.removeEventListener('resize', handleResize)
+    window.removeEventListener('resize', handleResize);
   })
 
   const toggleSidebar = () => {
-    // re-evaluate viewport size at click time to reliably detect mobile in devtools
-    const mobileNow = window.innerWidth < 1024
+    const mobileNow = window.innerWidth < 1024;
     if (mobileNow) {
-      isMobileOpen.value = !isMobileOpen.value
+      isMobileOpen.value = !isMobileOpen.value;
     } else {
-      isExpanded.value = !isExpanded.value
+      isExpanded.value = !isExpanded.value;
     }
   }
 
   const toggleMobileSidebar = () => {
-    isMobileOpen.value = !isMobileOpen.value
+    isMobileOpen.value = !isMobileOpen.value;
   }
 
   const setIsHovered = (value: boolean) => {
-    isHovered.value = value
+    isHovered.value = value;
   }
 
   const setActiveItem = (item: string | null) => {

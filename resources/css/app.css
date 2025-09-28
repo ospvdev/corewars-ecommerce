@@ -1,8 +1,87 @@
+/* Import external CSS first */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap');
 @import 'tailwindcss';
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
+/* Load local Purista Numbers font */
+@font-face {
+  font-family: 'Purista Numbers';
+  src: url('../fonts/purista numbers.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@source "../views/**/*.blade.php";
+@source "../js/**/*.{vue,js,ts}";
+@source "../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php";
+@source "../../storage/framework/views/*.php";
 
 @theme inline {
-    --font-sans: Instrument Sans, ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  /* Use Roboto as primary UI font, keep Purista as fallback for numbers/branding */
+  --font-sans: 'Roboto', 'Purista Numbers', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+  /* COLORES personalizados (v4) */
+  --color-primary: #46e99e;
+  --color-bg-1: #050506;
+  --color-bg-2: #0f0f17;
+  --color-bg-3: #11151e;
+}
+
+@layer utilities {
+  .clip-bottom-custom {
+    clip-path: polygon(75% 25%, 100% 65%, 100% 100%, 0 100%, 0 65%);
+  }
+
+  .clip-bottom-green {
+    clip-path: polygon(75% 25%, 25% 51.9%, 73% 45%);
+  }
+}
+
+:root{
+  /* Registered custom font */
+  /* Roboto primary, Purista fallback */
+  --font-sans: 'Roboto', 'Purista Numbers', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Arial;
+
+  --color-primary: #46e99e;
+  --color-white: #ffffff;
+  --color-bg-1: #050506;
+  --color-bg-2: #0f0f17;
+  --color-bg-3: #11151e;
+  --color-card: #232530;
+}
+.app-font, html, body {
+  /* Ensure the site uses the chosen --font-sans (Inter) so bold weights are available */
+  font-family: var(--font-sans) !important;
+  /* Mirror our choice into Tailwind's default variable to avoid conflicts */
+  --default-font-family: var(--font-sans);
+}
+.mouse-point {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: var(--color-primary);
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  transition: opacity .2s ease;
+}
+
+.hex-stroke-anim {
+  stroke-dasharray: 820 820;
+  stroke-dashoffset: 820;   /* oculto por defecto */
+}
+
+/* lanza la animación sólo en hover (más lenta) */
+.hex-btn:hover .hex-stroke-anim {
+  animation: hex-draw 1.5s ease forwards;
+}
+
+@keyframes hex-draw {
+  from { stroke-dashoffset: 820; }
+  to   { stroke-dashoffset: 0; }
 }

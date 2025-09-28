@@ -9,6 +9,9 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
 use Ilzrv\LaravelSteamAuth\SteamAuthenticator;
 use Ilzrv\LaravelSteamAuth\SteamUserDto;
+use App\Models\User;
+use Inertia\Inertia;
+use Inertia\Response;
 use Ilzrv\LaravelSteamAuth\Exceptions\Validation\ValidationException;
 use Ilzrv\LaravelSteamAuth\Exceptions\Authentication\SteamResponseNotValidAuthenticationException;
 
@@ -26,7 +29,8 @@ final class SteamAuthController
         try {
             $auth->auth();
         } catch (ValidationException|SteamResponseNotValidAuthenticationException) {
-            $returnTo = url('/auth/steam');
+            //$returnTo = url('/auth/steam');
+            $returnTo = route('steam.auth');
             $realm = config('app.url');
 
             $qs = http_build_query([
@@ -46,7 +50,7 @@ final class SteamAuthController
         //? validado -> obtener usuario y loguear
         $steamUser = $auth->getSteamUser();
 
-        $user = \App\Models\User::firstOrCreate(
+        $user = User::firstOrCreate(
             ['steamid' => $steamUser->getSteamId()],
             [
                 'name' => $steamUser->getPersonaName(),
@@ -59,6 +63,19 @@ final class SteamAuthController
         // die();
 
         $authManager->login($user, true);
-        return redirect()->intended('/');
+        return redirect()->intended(route('home'));
+    }
+
+    public function login(Request $request, Redirector $redirector){
+        return redirect()->route('steam.auth');
+    }
+
+    public function logout(
+        Request $request,
+        Redirector $redirector,
+        AuthManager $authManager,
+    ) {
+        $authManager->logout();
+        return redirect()->route('home');
     }
 }

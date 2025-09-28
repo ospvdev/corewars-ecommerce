@@ -1,10 +1,20 @@
 import '../css/app.css';
+// Font Awesome CSS (to use <i class="fa ..."> classes)
+import '@fortawesome/fontawesome-free/css/all.css';
 
 import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
 import { ZiggyVue } from 'ziggy-js';
+
+// FontAwesome
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { faUser, faLock, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import { faSteam } from '@fortawesome/free-brands-svg-icons';
+
+library.add(faUser, faLock, faMagnifyingGlass, faSteam);
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -15,6 +25,7 @@ createInertiaApp({
         createApp({ render: () => h(App, props) })
             .use(plugin)
             .use(ZiggyVue)
+            .component('font-awesome-icon', FontAwesomeIcon)
             .mount(el);
     },
     progress: {

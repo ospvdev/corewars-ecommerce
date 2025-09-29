@@ -6,6 +6,7 @@ interface User {
   haveAccess?: boolean;
   name?: string;
   role?: string;
+  permissions?: string[];
 }
 
 const data = defineProps<{ btnActive: string, user: User }>();

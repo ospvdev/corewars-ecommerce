@@ -5,7 +5,7 @@
     import { useSidebarProvider } from '@/composables/useSidebar';
 
     const { isExpanded, isHovered, isMobileOpen, toggleSidebar } = useSidebarProvider();
-    const data = defineProps<{ btnActive: string, user: { haveAccess?: boolean; name?: string; role?: string } }>();
+    const data = defineProps<{ btnActive: string, user: { haveAccess?: boolean; name?: string; role?: string; permissions?: string[] } }>();
 </script>
 
 <style scoped>

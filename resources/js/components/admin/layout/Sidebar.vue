@@ -13,9 +13,14 @@
     TableIcon,
     ListIcon,
     PlugInIcon,
+    BoxIcon
   } from '@/icons'
 
-  const data = defineProps<{ btnActive: string, user: { haveAccess?: boolean; name?: string; role?: string } }>();
+  const data = defineProps<{ btnActive: string, user: { haveAccess?: boolean; name?: string; role?: string; permissions?: string[] } }>();
+  const permissions = JSON.parse(JSON.stringify(data.user.permissions))
+
+
+
   const activeBtn = ref<string>(String(data.btnActive || ''));
 
   // Ensure we sync initial server-provided active button after mount (hydration safe)
@@ -27,7 +32,8 @@
     name: string
     path: string
     new?: boolean
-    active?: boolean
+    active?: boolean,
+    permissions?: boolean
   }
 
   interface MenuItem {
@@ -47,19 +53,27 @@
     {
       title: 'MENU',
       items: [
-  { icon: GridIcon, name: 'Dashboard', subItems: [{ name: 'eCommerce', path: 'dashboard/ecommerce' }], path: '' },
-  { icon: CalenderIcon, name: 'Calendar', path: '' },
-  { icon: UserCircleIcon, name: 'User Profile', path: '' },
-  { icon: ListIcon, name: 'Forms', subItems: [{ name: 'Form Elements', path: '' }], path: '' },
-  { icon: TableIcon, name: 'Tables', subItems: [{ name: 'Basic Tables', path: '' }], path: '' },
-  { icon: PageIcon, name: 'Pages', subItems: [{ name: 'Black Page', path: '' }, { name: '404 Page', path: '' }], path: '' },
+        { icon: GridIcon, name: 'Dashboard', subItems: [{ name: 'eCommerce', path: 'dashboard/ecommerce' }], path: '' },
+        { 
+          icon: BoxIcon, 
+          name: 'Catálogo', 
+          subItems: [
+            { name: 'Ordenes', path: 'dashboard/categorias' , permissions: havePermission('orders', 'canView')},
+            { name: 'Productos', path: 'dashboard/productos' , permissions: havePermission('products', 'canView')},
+          ], 
+          path: '' 
+        },
+        { icon: UserCircleIcon, name: 'User Profile', path: '' },
+        { icon: ListIcon, name: 'Forms', subItems: [{ name: 'Form Elements', path: '' }], path: '' },
+        { icon: TableIcon, name: 'Tables', subItems: [{ name: 'Basic Tables', path: '' }], path: '' },
+        { icon: PageIcon, name: 'Pages', subItems: [{ name: 'Black Page', path: '' }, { name: '404 Page', path: '' }], path: '' },
       ],
     },
     {
       title: 'OTHERS',
       items: [
-  { icon: PieChartIcon, name: 'Charts', subItems: [{ name: 'Line Chart', path: '' }], path: '' },
-  { icon: PlugInIcon, name: 'Authentication', subItems: [{ name: 'Signin', path: '' }, { name: 'Signup', path: '' }], path: '' },
+        { icon: PieChartIcon, name: 'Charts', subItems: [{ name: 'Line Chart', path: '' }], path: '' },
+        { icon: PlugInIcon, name: 'Authentication', subItems: [{ name: 'Signin', path: '' }, { name: 'Signup', path: '' }], path: '' },
       ],
     },
   ]
@@ -152,6 +166,11 @@
     // console.log('Boton activo: ' + activeBtn.value)
   }
 
+  function havePermission(module: string, action: string): boolean {
+    return permissions[module] && permissions[module][action];
+  }
+
+  console.log('Puede ver productos:', havePermission('users', 'canView'));
 </script>
 
 <template>
@@ -218,7 +237,7 @@
 								<ul v-if="item.subItems && open[gIndex + '-' + iIndex] && showExpanded" class="mt-2 ml-10 space-y-1">
                   <li v-for="sub in item.subItems" :key="sub.name">
                     <template v-if="sub.path">
-                      <Link :href="buildAdminHref(sub.path)" @click="setActiveBtn(sub.name)" class="sub-link text-sm" :class="(isActive(sub.path) || sub.name === activeBtn) ? 'bg-active text-primary' : 'text-sidebar-sub'">
+                      <Link v-show="sub.permissions" :href="buildAdminHref(sub.path)" @click="setActiveBtn(sub.name)" class="sub-link text-sm" :class="(isActive(sub.path) || sub.name === activeBtn) ? 'bg-active text-primary' : 'text-sidebar-sub'">
                         {{ sub.name }}
                         <span v-if="sub.new" class="ml-2 inline-block bg-new-ghost text-new text-xs px-2 py-0.5 rounded-full">NEW</span>
                       </Link>

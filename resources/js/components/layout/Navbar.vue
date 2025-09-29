@@ -1,10 +1,7 @@
 <script setup lang="ts">
   import { onMounted, onBeforeUnmount, ref, watch } from 'vue';
   import { route } from 'ziggy-js';
-  import { defineProps } from 'vue';
-  const props = defineProps<{ isAdmin: boolean, isLogged: boolean }>();
-  const isAdmin = props.isAdmin;
-  const isLogged = props.isLogged;
+  const { isLogged } = defineProps<{ isAdmin?: boolean, isLogged: boolean }>();
 
   const isAtTop = ref(true);
   const showBar = ref(true);
@@ -58,7 +55,7 @@
     try {
       const el = document.querySelector('meta[name="csrf-token"]');
       return el ? String(el.getAttribute('content')) : '';
-    } catch (e) {
+    } catch {
       return '';
     }
   }
@@ -78,7 +75,7 @@
       });
       // Redirect to home after logout
       window.location.href = route('home');
-    }catch(e){
+    }catch{
       // fallback: navigate to home
       window.location.href = route('home');
     }
@@ -96,13 +93,13 @@
   watch(showMenu, (val) => {
     try {
       document.documentElement.style.overflowX = val ? 'hidden' : '';
-    } catch (e) {
+    } catch {
       // ignore in non-browser environments
     }
   });
 
   onBeforeUnmount(() => {
-    try { document.documentElement.style.overflowX = ''; } catch (e) {}
+    try { document.documentElement.style.overflowX = ''; } catch {}
   });
 </script>
 

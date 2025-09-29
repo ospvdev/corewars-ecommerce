@@ -65,7 +65,7 @@
   ]
 
   const open = ref<Record<string, boolean>>({})
-  const { isExpanded, isMobileOpen, isHovered, setIsHovered, toggleSidebar } = useSidebar()
+  const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar()
 
   const showExpanded = computed(() => {
     return isExpanded.value || isHovered.value || isMobileOpen.value

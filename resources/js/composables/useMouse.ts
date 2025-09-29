@@ -1,4 +1,4 @@
-import { reactive, computed, watchEffect, toRefs, type CSSProperties, ref, onMounted, onUnmounted, type Ref } from 'vue';
+import { reactive, computed, watchEffect, type CSSProperties, ref, onMounted, onUnmounted, type Ref } from 'vue';
 
 export function useMouse(): { updateMousePosition: (e: MouseEvent) => void; pointStyle: Ref<CSSProperties> ; state: { mouseX: number; mouseY: number; showPoint: boolean; }; } {
   const x = ref(0);
@@ -35,9 +35,7 @@ export function useMouse(): { updateMousePosition: (e: MouseEvent) => void; poin
     state.showPoint = true;
   };
 
-  const handleLeaveContainer = () => {
-    state.showPoint = false;
-  };
+  // handleLeaveContainer was removed because it wasn't used; leaving logic centralized in other handlers
 
   const handleDocMouseOut = (e: MouseEvent) => {
     if (e.relatedTarget === null) state.showPoint = false;

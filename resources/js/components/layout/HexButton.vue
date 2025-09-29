@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    const props = withDefaults(defineProps<{
+    const { label, href, textColor, borderColor, bgColor, showIcon } = withDefaults(defineProps<{
     label        : string
     href?        : string
     textColor?   : string   // color del texto / icono (currentColor)
@@ -15,7 +15,7 @@
     });
 
     const d = 'M20 2 H280 L298 50 L280 98 H20 L2 50 Z';
-    </script>
+</script>
 
 <template>
     <a :href="href" class="hex-btn relative group inline-flex items-center gap-2 h-10 px-5 select-none" :style="{ color: textColor }">

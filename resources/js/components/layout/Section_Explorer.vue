@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
     const itemsFeatured = [
         { id: 1, name: 'Item 1', url: '', brandName: 'Brand A', brandLogo: '', price: 1000, category: 'Shoes' },
         { id: 2, name: 'Item 2', url: '', brandName: 'Brand B', brandLogo: '', price: 2000, category: 'Shoes' },

@@ -17,5 +17,4 @@ Route::prefix('auth/steam')->group(function () {
 
 Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::get('/', [DashboardAdminController::class, 'index'])->name('dashboard');
-    Route::get('/dashboard/ecommerce', [DashboardAdminController::class, 'ecommerce'])->name('dashboard.ecommerce');
 });

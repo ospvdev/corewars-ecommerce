@@ -7,14 +7,18 @@
     GridIcon,
     CalenderIcon,
     UserCircleIcon,
+    BarChartIcon,
     PieChartIcon,
     ChevronDownIcon,
-    PageIcon,
+    SettingsIcon,
     TableIcon,
     ListIcon,
+    ArchiveIcon,
     PlugInIcon,
-    BoxIcon
-  } from '@/icons'
+    BoxIcon,
+    InfoIcon,
+    SupportIcon
+  } from '@/icons';
 
   const data = defineProps<{ btnActive: string, user: { haveAccess?: boolean; name?: string; role?: string; permissions?: string[] } }>();
   const permissions = JSON.parse(JSON.stringify(data.user.permissions))
@@ -42,6 +46,7 @@
     path?: string | null
     subItems?: SubItem[]
     active?: boolean
+    permissions?: boolean
   }
 
   interface MenuGroup {
@@ -51,29 +56,65 @@
 
   const menuGroups: MenuGroup[] = [
     {
-      title: 'MENU',
+      title: 'ECOMMERCE',
       items: [
-        { icon: GridIcon, name: 'Dashboard', subItems: [{ name: 'eCommerce', path: 'dashboard/ecommerce' }], path: '' },
+        { 
+          icon: GridIcon, name: 'Dashboard',
+          path: '/admin',
+          permissions: havePermission('orders', 'canView') 
+        },
         { 
           icon: BoxIcon, 
-          name: 'Catálogo', 
+          name: 'Productos', 
           subItems: [
             { name: 'Ordenes', path: 'dashboard/categorias' , permissions: havePermission('orders', 'canView')},
             { name: 'Productos', path: 'dashboard/productos' , permissions: havePermission('products', 'canView')},
           ], 
           path: '' 
         },
-        { icon: UserCircleIcon, name: 'User Profile', path: '' },
-        { icon: ListIcon, name: 'Forms', subItems: [{ name: 'Form Elements', path: '' }], path: '' },
-        { icon: TableIcon, name: 'Tables', subItems: [{ name: 'Basic Tables', path: '' }], path: '' },
-        { icon: PageIcon, name: 'Pages', subItems: [{ name: 'Black Page', path: '' }, { name: '404 Page', path: '' }], path: '' },
+        { 
+          icon: CalenderIcon, 
+          name: 'Descuentos', 
+          subItems: [
+            { name: 'Ordenes', path: 'dashboard/categorias' , permissions: havePermission('orders', 'canView')},
+            { name: 'Productos', path: 'dashboard/productos' , permissions: havePermission('products', 'canView')},
+          ], 
+          path: '' 
+        },
+        { 
+          icon: ArchiveIcon, 
+          name: 'Pedidos', 
+          subItems: [
+            { name: 'Ordenes', path: 'dashboard/categorias' , permissions: havePermission('orders', 'canView')},
+            { name: 'Productos', path: 'dashboard/productos' , permissions: havePermission('products', 'canView')},
+          ], 
+          path: '' 
+        },
+        { 
+          icon: UserCircleIcon, 
+          name: 'Clientes', 
+          subItems: [
+            { name: 'Ordenes', path: 'dashboard/categorias' , permissions: havePermission('orders', 'canView')},
+            { name: 'Productos', path: 'dashboard/productos' , permissions: havePermission('products', 'canView')},
+          ], 
+          path: '' 
+        },
+        { 
+          icon: SettingsIcon, 
+          name: 'Tienda', 
+          subItems: [
+            { name: 'Ordenes', path: 'dashboard/categorias' , permissions: havePermission('orders', 'canView')},
+            { name: 'Productos', path: 'dashboard/productos' , permissions: havePermission('products', 'canView')},
+          ], 
+          path: '' 
+        }
       ],
     },
     {
-      title: 'OTHERS',
+      title: 'OTRO',
       items: [
-        { icon: PieChartIcon, name: 'Charts', subItems: [{ name: 'Line Chart', path: '' }], path: '' },
-        { icon: PlugInIcon, name: 'Authentication', subItems: [{ name: 'Signin', path: '' }, { name: 'Signup', path: '' }], path: '' },
+        { icon: InfoIcon, name: 'Ayuda', subItems: [{ name: 'Line Chart', path: '' }], path: '' },
+        { icon: SupportIcon, name: 'Documentación', subItems: [{ name: 'Signin', path: '' }, { name: 'Signup', path: '' }], path: '' },
       ],
     },
   ]
@@ -191,7 +232,7 @@
 				<div v-if="showExpanded" class="mb-3 text-xs font-medium text-sidebar-muted px-2">{{ group.title }}</div>
 				<ul class="space-y-2">
 					<li v-for="(item, iIndex) in group.items" :key="item.name">
-                        <div :class="[ 'menu-item-row rounded-md overflow-hidden', showExpanded ? 'flex items-center justify-between' : 'flex items-center justify-center', isItemActive(item) ? 'active' : '' ]">
+            <div :class="[ 'menu-item-row rounded-md overflow-hidden', showExpanded ? 'flex items-center justify-between' : 'flex items-center justify-center', isItemActive(item) ? 'active' : '' ]">
 							<template v-if="item.subItems">
 								<button
 									type="button"
@@ -200,9 +241,9 @@
 									@click="toggleOpen(gIndex + '-' + iIndex)"
 								>
 									<span class="icon-wrap flex items-center justify-center rounded-md" :class="showExpanded ? 'w-8 h-8' : 'w-full'">
-                                        <component :is="item.icon" :class="['w-5 h-5', (isItemActive(item) || hasActiveSubItems(item)) ? 'text-primary' : 'text-sidebar-icon']" />
+                    <component :is="item.icon" :class="['w-5 h-5', (isItemActive(item) || hasActiveSubItems(item)) ? 'text-primary' : 'text-sidebar-icon']" />
 									</span>
-                                    <div v-if="showExpanded" class="text-sm font-medium whitespace-nowrap truncate" :class="isItemActive(item) ? 'text-primary' : (hasActiveSubItems(item) ? 'text-sidebar-text text-opacity-90' : 'text-sidebar-text')">{{ item.name }}</div>
+                  <div v-if="showExpanded" class="text-sm font-medium whitespace-nowrap truncate" :class="isItemActive(item) ? 'text-primary' : (hasActiveSubItems(item) ? 'text-sidebar-text text-opacity-90' : 'text-sidebar-text')">{{ item.name }}</div>
 								</button>
 							</template>
 							<template v-else-if="item.path">
@@ -234,22 +275,22 @@
 							</div>
 						</div>
 
-								<ul v-if="item.subItems && open[gIndex + '-' + iIndex] && showExpanded" class="mt-2 ml-10 space-y-1">
-                  <li v-for="sub in item.subItems" :key="sub.name">
-                    <template v-if="sub.path">
-                      <Link v-show="sub.permissions" :href="buildAdminHref(sub.path)" @click="setActiveBtn(sub.name)" class="sub-link text-sm" :class="(isActive(sub.path) || sub.name === activeBtn) ? 'bg-active text-primary' : 'text-sidebar-sub'">
-                        {{ sub.name }}
-                        <span v-if="sub.new" class="ml-2 inline-block bg-new-ghost text-new text-xs px-2 py-0.5 rounded-full">NEW</span>
-                      </Link>
-                    </template>
-                    <template v-else>
-                      <button type="button" @click="setActiveBtn(sub.name)" class="sub-link text-sm" :class="sub.name === activeBtn ? 'bg-active text-primary' : 'text-sidebar-sub'">
-                        {{ sub.name }}
-                        <span v-if="sub.new" class="ml-2 inline-block bg-new-ghost text-new text-xs px-2 py-0.5 rounded-full">NEW</span>
-                      </button>
-                    </template>
-                  </li>
-								</ul>
+            <ul v-if="item.subItems && open[gIndex + '-' + iIndex] && showExpanded" class="mt-2 ml-10 space-y-1">
+              <li v-for="sub in item.subItems" :key="sub.name">
+                <template v-if="sub.path">
+                  <Link v-show="sub.permissions" :href="buildAdminHref(sub.path)" @click="setActiveBtn(sub.name)" class="sub-link text-sm" :class="(isActive(sub.path) || sub.name === activeBtn) ? 'bg-active text-primary' : 'text-sidebar-sub'">
+                    {{ sub.name }}
+                    <span v-if="sub.new" class="ml-2 inline-block bg-new-ghost text-new text-xs px-2 py-0.5 rounded-full">NEW</span>
+                  </Link>
+                </template>
+                <template v-else>
+                  <button type="button" @click="setActiveBtn(sub.name)" class="sub-link text-sm" :class="sub.name === activeBtn ? 'bg-active text-primary' : 'text-sidebar-sub'">
+                    {{ sub.name }}
+                    <span v-if="sub.new" class="ml-2 inline-block bg-new-ghost text-new text-xs px-2 py-0.5 rounded-full">NEW</span>
+                  </button>
+                </template>
+              </li>
+            </ul>
 					</li>
 				</ul>
 			</div>

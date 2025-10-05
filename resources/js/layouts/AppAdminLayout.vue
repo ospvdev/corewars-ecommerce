@@ -20,16 +20,20 @@
     <div v-if="isMobileOpen" @click="toggleSidebar" class="lg:hidden fixed inset-0 bg-black/40 z-30"></div>
 
       <div
-        class="flex-1 transition-all duration-300 ease-in-out bg-sidebar-bg text-sidebar-text min-h-screen pt-16 lg:pt-0"
+        class="flex-1 transition-all duration-300 ease-in-out bg-sidebar-bg text-sidebar-text min-h-screen"
         :class="[(isExpanded || isHovered) ? 'lg:ml-72' : 'lg:ml-20', isMobileOpen ? 'ml-0' : '']"
+        style="padding-top: var(--topbar-height, 4rem);"
       >
         <div class="flex-1 flex flex-col">
-          <main role="main" class="p-4 mx-auto max-w-[var(--breakpoint-2xl)] md:p-6">
-            <div class="page-header mb-4">
+          <main role="main" class="flex-1">
+            <div class="page-header mb-4 px-4 md:px-6">
               <slot name="header"></slot>
             </div>
+
             <div class="page-content">
-              <slot></slot>
+              <div class="mx-auto max-w-8xl px-4 md:px-6 lg:px-8 py-6">
+                <slot></slot>
+              </div>
             </div>
           </main>
         </div>

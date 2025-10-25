@@ -10,8 +10,7 @@ class AdminController extends Controller
 {
     protected $user;
 
-    public function __construct()
-    {
+    public function __construct(){
         $this->middleware('auth');
 
         $this->middleware(function (Request $request, $next) {

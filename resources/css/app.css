@@ -32,6 +32,20 @@
 }
 
 @layer utilities {
+  .bg-warning {
+    background-color: var(--color-warning) !important;
+  }
+  .bg-error {
+    background-color: var(--color-error) !important;
+  }
+
+  .text-error {
+    color: var(--color-error) !important;
+  }
+  .text-warning {
+    color: var(--color-warning) !important;
+  }
+
   .clip-bottom-custom {
     clip-path: polygon(75% 25%, 100% 65%, 100% 100%, 0 100%, 0 65%);
   }
@@ -47,6 +61,8 @@
   --font-sans: 'Roboto', 'Purista Numbers', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Arial;
 
   --color-primary: #46e99e;
+  --color-error: #E96A46;
+  --color-warning: #E9E946;
   --color-white: #ffffff;
   --color-bg-1: #050506;
   --color-bg-2: #0f0f17;

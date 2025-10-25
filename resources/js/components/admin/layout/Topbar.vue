@@ -7,29 +7,29 @@
 
     const isDesktop = ref(false);
     const handleResize = () => {
-        isDesktop.value = window.innerWidth >= 1024;
+      isDesktop.value = window.innerWidth >= 1024;
     }
     onMounted(() => {
-        isDesktop.value = window.innerWidth >= 1024;
+      isDesktop.value = window.innerWidth >= 1024;
     window.addEventListener('resize', handleResize);
     });
 
     onBeforeUnmount(() => {
-        window.removeEventListener('resize', handleResize);
+      window.removeEventListener('resize', handleResize);
     });
 
     const showExpanded = computed(() => {
-        return isExpanded.value || isHovered.value || isMobileOpen.value;
+      return isExpanded.value || isHovered.value || isMobileOpen.value;
     });
 
     const leftClass = computed(() => {
-        return showExpanded.value ? 'lg:left-[18rem]' : 'lg:left-[5rem]';
+      return showExpanded.value ? 'lg:left-[18rem]' : 'lg:left-[5rem]';
     })
 
     const headerStyle = computed(() => {
     if (!isDesktop.value) return {}
     if (showExpanded.value) return { width: 'calc(100% - 18rem)' };
-        return { width: 'calc(100% - 5rem)' };
+      return { width: 'calc(100% - 5rem)' };
     });
 
     const showDotsPanel = ref(false);
@@ -37,7 +37,7 @@
     const dotsPanel: Ref<HTMLElement | null> = ref(null);
 
     const toggleDots = (): void => {
-        showDotsPanel.value = !showDotsPanel.value
+      showDotsPanel.value = !showDotsPanel.value
     }
 
     const onDocumentClick = (e: MouseEvent): void => {
@@ -47,16 +47,16 @@
     const target = e.target as Node | null;
     if (btn && target && btn.contains(target as Node)) return;
     if (panel && target && panel.contains(target as Node)) return;
-        showDotsPanel.value = false;
+      showDotsPanel.value = false;
     }
 
     const data = defineProps<{ btnActive: string, user: { haveAccess?: boolean; name?: string; role?: string } }>();
     onMounted(() => {
-        document.addEventListener('click', onDocumentClick);
+      document.addEventListener('click', onDocumentClick);
     });
 
     onBeforeUnmount(() => {
-        document.removeEventListener('click', onDocumentClick);
+      document.removeEventListener('click', onDocumentClick);
     });
 </script>
 

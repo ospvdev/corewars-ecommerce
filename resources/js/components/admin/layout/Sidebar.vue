@@ -67,8 +67,8 @@
           icon: BoxIcon, 
           name: 'Productos', 
           subItems: [
-            { name: 'Ordenes', path: 'dashboard/categorias' , permissions: havePermission('orders', 'canView')},
-            { name: 'Productos', path: 'dashboard/productos' , permissions: havePermission('products', 'canView')},
+            { name: 'Categorias', path: 'categorias' , permissions: havePermission('products', 'canView')},
+            { name: 'Productos', path: 'productos' , permissions: havePermission('products', 'canView')},
           ], 
           path: '' 
         },
@@ -214,12 +214,62 @@
   console.log('Puede ver productos:', havePermission('users', 'canView'));
 </script>
 
+<style scoped>
+.bg-sidebar-bg { background-color: var(--color-bg-2); }
+.text-sidebar-text { color: var(--color-white); }
+.border-sidebar-border { border-color: rgba(255,255,255,0.04); }
+.text-sidebar-sub { color: rgba(255,255,255,0.9); }
+.text-sidebar-muted { color: rgba(255,255,255,0.6); }
+.bg-sidebar-hover { background-color: rgba(17,21,30,0.6); }
+.text-sidebar-icon { color: rgba(255,255,255,0.6); }
+.text-primary { color: var(--color-primary); }
+.bg-primary-active { background-color: rgba(70,233,158,0.12); }
+.bg-new-ghost { background-color: rgba(70,233,158,0.12); }
+.text-new { color: #10b981; }
+
+.btn-hover-bg { background-color: rgba(17,21,30,0.85); }
+
+.sidebar-link { transition: background-color .12s ease; background: transparent; }
+.menu-item-row { transition: background-color .12s ease; }
+.menu-item-row:hover { background-color: rgba(17,21,30,0.6); }
+.menu-item-row.active { background-color: rgba(70,233,158,0.12); }
+.menu-item-row .icon-wrap { background-color: transparent; }
+.menu-item-row:hover .icon-wrap,
+.menu-item-row.active .icon-wrap { background-color: transparent; }
+
+.w-20 { width: 5rem; }
+.w-72 { width: 18rem; }
+.menu-item-row { padding-left: 0.25rem; padding-right: 0.25rem; }
+.menu-item-row .sidebar-link { width: 100%; }
+
+.collapsed-sidebar { border-right: 1px solid rgba(255,255,255,0.04); }
+.collapsed-sidebar .menu-item-row { padding-left: 0; padding-right: 0; }
+.collapsed-sidebar .menu-item-row .sidebar-link { justify-content: center; padding-left: 0; padding-right: 0; }
+.collapsed-sidebar .menu-item-row .icon-wrap { width: 2rem; height: 2rem; display: flex; justify-content: center; }
+.collapsed-sidebar .menu-item-row .icon-wrap > * { width: 1.25rem; height: 1.25rem; }
+.collapsed-sidebar .text-sm { display: none; }
+
+.collapsed-sidebar .menu-item-row:hover { background: transparent; }
+.collapsed-sidebar .menu-item-row .sidebar-link:hover { background: transparent; }
+
+.border-sidebar-divider { border-right: 1px solid rgba(255,255,255,0.04); }
+
+.sub-link { display: block; padding-left: 0.75rem; padding-right: 0.75rem; padding-top: 0.5rem; padding-bottom: 0.5rem; border-radius: 0.5rem; transition: background-color .12s ease; }
+.sub-link:hover { background-color: rgba(17,21,30,0.6); }
+.sub-link.bg-active { background-color: rgba(70,233,158,0.12); }
+
+@media (max-width: 1024px) {
+	aside { width: 260px; }
+}
+
+</style>
+
 <template>
-      <aside
-          @mouseenter="onMouseEnter"
-          @mouseleave="onMouseLeave"
-          :class="asideClass"
-        >
+  <aside
+      @mouseenter="onMouseEnter"
+      @mouseleave="onMouseLeave"
+      :class="asideClass"
+    >
 		<div class="mb-6 hidden lg:flex items-center gap-3">
 			<div class="w-12 h-12 rounded-lg flex items-center justify-center bg-primary-ghost">
 				<img src="/img/logo.png" alt="logo" class="w-10 h-10 object-contain" />
@@ -297,54 +347,3 @@
 		</nav>
 	</aside>
 </template>
-
-<style scoped>
-.bg-sidebar-bg { background-color: var(--color-bg-2); }
-.text-sidebar-text { color: var(--color-white); }
-.border-sidebar-border { border-color: rgba(255,255,255,0.04); }
-.text-sidebar-sub { color: rgba(255,255,255,0.9); }
-.text-sidebar-muted { color: rgba(255,255,255,0.6); }
-.bg-sidebar-hover { background-color: rgba(17,21,30,0.6); }
-.text-sidebar-icon { color: rgba(255,255,255,0.6); }
-.text-primary { color: var(--color-primary); }
-.bg-primary-active { background-color: rgba(70,233,158,0.12); }
-.bg-new-ghost { background-color: rgba(70,233,158,0.12); }
-.text-new { color: #10b981; }
-
-.btn-hover-bg { background-color: rgba(17,21,30,0.85); }
-
-.sidebar-link { transition: background-color .12s ease; background: transparent; }
-.menu-item-row { transition: background-color .12s ease; }
-.menu-item-row:hover { background-color: rgba(17,21,30,0.6); }
-.menu-item-row.active { background-color: rgba(70,233,158,0.12); }
-.menu-item-row .icon-wrap { background-color: transparent; }
-.menu-item-row:hover .icon-wrap,
-.menu-item-row.active .icon-wrap { background-color: transparent; }
-
-.w-20 { width: 5rem; }
-.w-72 { width: 18rem; }
-.menu-item-row { padding-left: 0.25rem; padding-right: 0.25rem; }
-.menu-item-row .sidebar-link { width: 100%; }
-
-.collapsed-sidebar { border-right: 1px solid rgba(255,255,255,0.04); }
-.collapsed-sidebar .menu-item-row { padding-left: 0; padding-right: 0; }
-.collapsed-sidebar .menu-item-row .sidebar-link { justify-content: center; padding-left: 0; padding-right: 0; }
-.collapsed-sidebar .menu-item-row .icon-wrap { width: 2rem; height: 2rem; display: flex; justify-content: center; }
-.collapsed-sidebar .menu-item-row .icon-wrap > * { width: 1.25rem; height: 1.25rem; }
-.collapsed-sidebar .text-sm { display: none; }
-
-.collapsed-sidebar .menu-item-row:hover { background: transparent; }
-.collapsed-sidebar .menu-item-row .sidebar-link:hover { background: transparent; }
-
-.border-sidebar-divider { border-right: 1px solid rgba(255,255,255,0.04); }
-
-.sub-link { display: block; padding-left: 0.75rem; padding-right: 0.75rem; padding-top: 0.5rem; padding-bottom: 0.5rem; border-radius: 0.5rem; transition: background-color .12s ease; }
-.sub-link:hover { background-color: rgba(17,21,30,0.6); }
-.sub-link.bg-active { background-color: rgba(70,233,158,0.12); }
-
-@media (max-width: 1024px) {
-	aside { width: 260px; }
-}
-
-</style>
-

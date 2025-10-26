@@ -2,12 +2,15 @@
     import {
         FlexRender,
         getCoreRowModel,
+        getPaginationRowModel,
         useVueTable,
         createColumnHelper,
-        CellContext
+        CellContext,
+        RowSelectionState
     } from '@tanstack/vue-table';
 
     import { ref, h } from 'vue';
+    import IndeterminateCheckbox from '@/components/admin/layout/ecommerce/IndeterminateCheckbox.vue';
 
     type Product = {
         id: number;
@@ -20,6 +23,9 @@
         img: string;
     }
 
+    const INITIAL_PAGE_INDEX = 0;
+    const goToPageNumber = ref(INITIAL_PAGE_INDEX + 1);
+    const pageSizes = [5, 10, 20, 50, 100];
     const defaultData: Product[] = [
         {
             id: 1,
@@ -51,10 +57,169 @@
             createdAt: '2024-01-15',
             img: 'https://picsum.photos/id/63/200/200'
         },
+        {
+            id: 4,
+            name: 'ASUS ROG Gaming Laptop',
+            price: 289000,
+            category: 'Laptop',
+            stock: 12,
+            position: 4,
+            createdAt: '2024-01-15',
+            img: 'https://picsum.photos/id/63/200/200'
+        },
+        {
+            id: 5,
+            name: 'ASUS ROG Gaming Laptop',
+            price: 289000,
+            category: 'Laptop',
+            stock: 12,
+            position: 5,
+            createdAt: '2024-01-15',
+            img: 'https://picsum.photos/id/63/200/200'
+        },
+        {
+            id: 6,
+            name: 'ASUS ROG Gaming Laptop',
+            price: 289000,
+            category: 'Laptop',
+            stock: 12,
+            position: 6,
+            createdAt: '2024-01-15',
+            img: 'https://picsum.photos/id/63/200/200'
+        },
+        {
+            id: 7,
+            name: 'ASUS ROG Gaming Laptop',
+            price: 289000,
+            category: 'Laptop',
+            stock: 12,
+            position: 7,
+            createdAt: '2024-01-15',
+            img: 'https://picsum.photos/id/63/200/200'
+        },
+        {
+            id: 8,
+            name: 'ASUS ROG Gaming Laptop',
+            price: 289000,
+            category: 'Laptop',
+            stock: 12,
+            position: 8,
+            createdAt: '2024-01-15',
+            img: 'https://picsum.photos/id/63/200/200'
+        },
+        {
+            id: 9,
+            name: 'ASUS ROG Gaming Laptop',
+            price: 289000,
+            category: 'Laptop',
+            stock: 12,
+            position: 9,
+            createdAt: '2024-01-15',
+            img: 'https://picsum.photos/id/63/200/200'
+        },
+        {
+            id: 10,
+            name: 'ASUS ROG Gaming Laptop',
+            price: 289000,
+            category: 'Laptop',
+            stock: 12,
+            position: 10,
+            createdAt: '2024-01-15',
+            img: 'https://picsum.photos/id/63/200/200'
+        },
+        {
+            id: 11,
+            name: 'ASUS ROG Gaming Laptop',
+            price: 289000,
+            category: 'Laptop',
+            stock: 12,
+            position: 11,
+            createdAt: '2024-01-15',
+            img: 'https://picsum.photos/id/63/200/200'
+        },
+        {
+            id: 12,
+            name: 'ASUS ROG Gaming Laptop',
+            price: 289000,
+            category: 'Laptop',
+            stock: 12,
+            position: 12,
+            createdAt: '2024-01-15',
+            img: 'https://picsum.photos/id/63/200/200'
+        },
+        {
+            id: 13,
+            name: 'ASUS ROG Gaming Laptop',
+            price: 289000,
+            category: 'Laptop',
+            stock: 12,
+            position: 13,
+            createdAt: '2024-01-15',
+            img: 'https://picsum.photos/id/63/200/200'
+        },
+        {
+            id: 14,
+            name: 'ASUS ROG Gaming Laptop',
+            price: 289000,
+            category: 'Laptop',
+            stock: 12,
+            position: 14,
+            createdAt: '2024-01-15',
+            img: 'https://picsum.photos/id/63/200/200'
+        },
+        {
+            id: 15,
+            name: 'ASUS ROG Gaming Laptop',
+            price: 289000,
+            category: 'Laptop',
+            stock: 12,
+            position: 15,
+            createdAt: '2024-01-15',
+            img: 'https://picsum.photos/id/63/200/200'
+        },
+        {
+            id: 16,
+            name: 'ASUS ROG Gaming Laptop',
+            price: 289000,
+            category: 'Laptop',
+            stock: 12,
+            position: 16,
+            createdAt: '2024-01-15',
+            img: 'https://picsum.photos/id/63/200/200'
+        },
+        {
+            id: 17,
+            name: 'ASUS ROG Gaming Laptop',
+            price: 289000,
+            category: 'Laptop',
+            stock: 12,
+            position: 17,
+            createdAt: '2024-01-15',
+            img: 'https://picsum.photos/id/63/200/200'
+        }
     ];
 
     const columnHelper = createColumnHelper<Product>();
     const columns = [
+        {
+            id: 'select',
+            header: ({ table }: { table: any }) => {
+                return h(IndeterminateCheckbox, {
+                    checked: table.getIsAllRowsSelected(),
+                    indeterminate: table.getIsSomeRowsSelected(),
+                    onChange: table.getToggleAllRowsSelectedHandler()
+                });
+            },
+            cell: ({ row }: { row: any }) => {
+                return h('div', [
+                    h(IndeterminateCheckbox, {
+                        checked: row.getIsSelected(),
+                        indeterminate: row.getIsSomeSelected(),
+                        onChange: row.getToggleSelectedHandler()
+                    })
+                ]);
+            },
+        },
         {
             header: 'ID',
             accessorKey: 'id',
@@ -104,12 +269,32 @@
     const rerender = () => {
         data.value = defaultData;
     }
+    const rowSelection = ref<RowSelectionState>({})
 
     const table = useVueTable({
         get data() {
             return data.value;
         },
         columns,
+        state: {
+            get rowSelection() {
+                return rowSelection.value
+            },
+        },
+        getPaginationRowModel: getPaginationRowModel(),
+        initialState: {
+            pagination: {
+                pageIndex: 0, // pagina inicial
+                pageSize: 5, // tamaño de pagina
+            },
+        },
+        enableRowSelection: true,
+        onRowSelectionChange: updateOrValue => {
+            rowSelection.value =
+            typeof updateOrValue === 'function'
+                ? updateOrValue(rowSelection.value)
+                : updateOrValue
+        },
         getCoreRowModel: getCoreRowModel(),
     });
 
@@ -121,6 +306,16 @@
         }
         return value.toLocaleString();
     }
+
+    function handleGoToPage(e: any) {
+        const page = e.target.value ? Number(e.target.value) - 1 : 0;
+        goToPageNumber.value = page + 1;
+        table.setPageIndex(page);
+    }
+
+    function handlePageSizeChange(e: any) {
+        table.setPageSize(Number(e.target.value));
+    }
 </script>
 
 <style scoped>
@@ -128,6 +323,7 @@
 </style>
 
 <template>
+    <!-- Convertir en componente dinamico :title :route_main :route_page :url -->
     <div x-data="{ pageName: `Products` }">
         <div class="flex flex-wrap items-center justify-between gap-3 pb-6">
             <h2 class="text-xl font-semibold text-gray-800 dark:text-white/90" x-text="pageName">Productos</h2>
@@ -243,13 +439,35 @@
             </table>
         </div>
 
-        <div class="mt-4 flex items-center gap-2 border-t border-sidebar-border px-5 py-4">
-        <button
-            @click="rerender"
-            class="px-3 py-2 rounded-md border border-white/20 bg-white/5 text-white/80 text-xs font-medium hover:bg-white/10 hover:text-white transition-colors"
-        >
-            Rerender
-        </button>
+        <div class="mt-4 flex flex-col sm:flex-row items-center sm:items-center gap-3 border-t border-sidebar-border px-5 py-4">
+            <!-- <button
+                @click="rerender()"
+                class="px-3 py-2 rounded-md border border-white/20 bg-white/5 text-white/80 text-xs font-medium hover:bg-white/10 hover:text-white transition-colors"
+            >
+                Rerender
+            </button> -->
+            
+            <span class="flex items-center gap-1">
+                <div>Página</div>
+                <strong>
+                    {{ table.getState().pagination.pageIndex + 1 }} de
+                    {{ table.getPageCount() }}
+                </strong>
+            </span>
+            <!-- <span class="flex items-center gap-1">
+                | Ir a página:
+                <input type="number" :value="goToPageNumber" @change="handleGoToPage" class="border p-1 rounded w-16"/>
+            </span> -->
+            <select :value="table.getState().pagination.pageSize" @change="handlePageSizeChange" class="h-9 rounded bg-transparent border border-sidebar-border px-2 text-sm">
+                <option :key="pageSize" :value="pageSize" v-for="pageSize in pageSizes">Mostrar {{ pageSize }}</option>
+            </select>
+
+            <div class="sm:ml-auto flex items-center gap-2">
+                <button class="px-3 py-2 rounded-md border border-white/20 bg-white/5 text-white/80 text-xs font-medium hover:bg-white/10 hover:text-white transition-colors" @click="() => table.firstPage()" :disabled="!table.getCanPreviousPage()"><<</button>
+                <button class="px-3 py-2 rounded-md border border-white/20 bg-white/5 text-white/80 text-xs font-medium hover:bg-white/10 hover:text-white transition-colors" @click="() => table.previousPage()" :disabled="!table.getCanPreviousPage()"><</button>
+                <button class="px-3 py-2 rounded-md border border-white/20 bg-white/5 text-white/80 text-xs font-medium hover:bg-white/10 hover:text-white transition-colors" @click="() => table.nextPage()" :disabled="!table.getCanNextPage()">></button>
+                <button class="px-3 py-2 rounded-md border border-white/20 bg-white/5 text-white/80 text-xs font-medium hover:bg-white/10 hover:text-white transition-colors" @click="() => table.lastPage()" :disabled="!table.getCanNextPage()">>></button>
+            </div>
         </div>
     </div>     
 </template>

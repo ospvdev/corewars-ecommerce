@@ -1,7 +1,130 @@
-<script setup="ts">
+<script setup lang="ts">
+    import {
+        FlexRender,
+        getCoreRowModel,
+        useVueTable,
+        createColumnHelper,
+        CellContext
+    } from '@tanstack/vue-table';
+
+    import { ref, h } from 'vue';
+
+    type Product = {
+        id: number;
+        name: string;
+        price: number;
+        category: string;
+        stock: number;
+        position: number;
+        createdAt: string;
+        img: string;
+    }
+
+    const defaultData: Product[] = [
+        {
+            id: 1,
+            name: 'ASUS ROG Gaming Laptop',
+            price: 800000,
+            category: 'Laptop',
+            stock: 12,
+            position: 1,
+            createdAt: '2024-01-15',
+            img: 'https://picsum.photos/id/63/200/200'
+        },
+        {
+            id: 2,
+            name: 'ASUS ROG Gaming Laptop',
+            price: 129000,
+            category: 'Laptop',
+            stock: 11,
+            position: 2,
+            createdAt: '2024-01-15',
+            img: 'https://picsum.photos/id/63/200/200'
+        },
+        {
+            id: 3,
+            name: 'ASUS ROG Gaming Laptop',
+            price: 289000,
+            category: 'Laptop',
+            stock: 12,
+            position: 3,
+            createdAt: '2024-01-15',
+            img: 'https://picsum.photos/id/63/200/200'
+        },
+    ];
+
+    const columnHelper = createColumnHelper<Product>();
+    const columns = [
+        {
+            header: 'ID',
+            accessorKey: 'id',
+        },
+        {
+            header: 'Producto',
+            accessorKey: 'name',
+            cell: (info: CellContext<Product, string>) => {
+                const product = info.row.original;
+                const src = product.img ?? 'https://picsum.photos/id/63/200/200';
+                return h('div', { class: 'flex items-center gap-3' }, [
+                    h('img', {
+                        src,
+                        alt: product.name,
+                        class: 'w-10 h-10 rounded-md object-cover',
+                        loading: 'lazy'
+                    }),
+                    h('div', { class: 'text-sm' }, product.name)
+                ]);
+            }
+        },
+        {
+            header: 'Categoria',
+            accessorKey: 'category',
+        },
+        {
+            header: 'Precio',
+            accessorKey: 'price',
+            cell: (info: CellContext<Product, number>) => formatCurrency(info.getValue(), true)
+        },
+        {
+            header: 'Stock',
+            accessorKey: 'stock',
+        },
+        {
+            header: 'Posición',
+            accessorKey: 'position',
+        }
+        ,
+        {
+            header: 'Creación',
+            accessorKey: 'createdAt',
+        }
+    ];
+
+    const data = ref(defaultData);
+    const rerender = () => {
+        data.value = defaultData;
+    }
+
+    const table = useVueTable({
+        get data() {
+            return data.value;
+        },
+        columns,
+        getCoreRowModel: getCoreRowModel(),
+    });
+
+    const totalProducts = ref(data.value.length);
+
+    function formatCurrency(value: number, money?: boolean): string {
+        if (money) {
+            return '$' + value.toLocaleString();
+        }
+        return value.toLocaleString();
+    }
 </script>
 
 <style scoped>
+
 </style>
 
 <template>
@@ -10,24 +133,24 @@
             <h2 class="text-xl font-semibold text-gray-800 dark:text-white/90" x-text="pageName">Productos</h2>
             <nav>
                 <ol class="flex items-center gap-1.5">
-                <li>
-                    <a class="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400" href="index.html">
-                    Dashboard
-                    <svg class="stroke-current" width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M6.0765 12.667L10.2432 8.50033L6.0765 4.33366" stroke="" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
-                    </svg>
-                    </a>
-                </li>
-                <li class="text-sm text-gray-800 dark:text-white/90" x-text="pageName">Productos</li>
+                    <li>
+                        <a class="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400" href="index.html">
+                            Dashboard
+                            <svg class="stroke-current" width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M6.0765 12.667L10.2432 8.50033L6.0765 4.33366" stroke="" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                        </a>
+                    </li>
+                    <li class="text-sm text-gray-800 dark:text-white/90" x-text="pageName">Productos</li>
                 </ol>
             </nav>
         </div>
     </div>
-    <div class="overflow-hidden rounded-md border border-sidebar-border bg-sidebar-hover " x-data="productTable()">
+    <div class="overflow-hidden rounded-md border border-sidebar-border bg-sidebar-hover">
         <div class="flex flex-col justify-between gap-5 px-5 py-4 sm:flex-row sm:items-center dark:border-gray-800">
             <div>
                 <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">Lista de Productos</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Total de productos: 12</p>
+                <p class="text-sm text-gray-400">Total de productos: {{ totalProducts }}</p>
             </div>
             <div class="flex gap-3">
                 <button class="inline-flex items-center gap-2 rounded-lg border border-sidebar-border bg-sidebar-hover px-4 py-2.5 font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200">
@@ -45,7 +168,7 @@
             </div>
         </div>
         <!--Buscador y filtro-->
-        <div class="border-t border-sidebar-border px-5 py-4">
+        <div class="border-b border-t border-sidebar-border px-5 py-4">
             <div class="flex gap-3 sm:justify-between">
                 <div class="relative flex-1 sm:flex-auto">
                     <span class="absolute top-1/2 left-4 -translate-y-1/2 text-gray-500 dark:text-gray-400">
@@ -56,13 +179,13 @@
                     <input type="text" placeholder="Buscar..." class="h-11 w-full rounded-lg border border-sidebar-border py-2.5 pr-4 pl-11 text-sm placeholder:text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-[#46e99e] sm:w-[300px] sm:min-w-[300px] bg-sidebar text-white/90 placeholder:text-white/30">
                 </div>
                 <div class="relative" x-data="{ showFilter: false }">
-                    <button class="flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-sidebar-border bg-sidebar-hover hover:bg-gray-50 hover:text-gray-200 text-gray-400 hover:bg-white/[0.03] px-4 py-2.5 text-sm font-medium sm:w-auto sm:min-w-[100px]" @click="showFilter = !showFilter" type="button">
+                    <button class="flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-sidebar-border bg-sidebar-hover hover:bg-gray-50 hover:text-gray-200 text-gray-400 hover:bg-white/[0.03] px-4 py-2.5 text-sm font-medium sm:w-auto sm:min-w-[100px]" type="button">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
                             <path d="M14.6537 5.90414C14.6537 4.48433 13.5027 3.33331 12.0829 3.33331C10.6631 3.33331 9.51206 4.48433 9.51204 5.90415M14.6537 5.90414C14.6537 7.32398 13.5027 8.47498 12.0829 8.47498C10.663 8.47498 9.51204 7.32398 9.51204 5.90415M14.6537 5.90414L17.7087 5.90411M9.51204 5.90415L2.29199 5.90411M5.34694 14.0958C5.34694 12.676 6.49794 11.525 7.91777 11.525C9.33761 11.525 10.4886 12.676 10.4886 14.0958M5.34694 14.0958C5.34694 15.5156 6.49794 16.6666 7.91778 16.6666C9.33761 16.6666 10.4886 15.5156 10.4886 14.0958M5.34694 14.0958L2.29199 14.0958M10.4886 14.0958L17.7087 14.0958" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
                         </svg>
                         Filtrar
                     </button>
-                    <div x-show="showFilter" @click.away="showFilter = false" class="absolute right-0 z-10 mt-2 w-56 rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800" style="display: none;">
+                    <div x-show="showFilter" class="absolute right-0 z-10 mt-2 w-56 rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800" style="display: none;">
                         <div class="mb-5">
                             <label class="mb-2 block text-xs font-medium text-gray-700 dark:text-gray-300">Category</label>
                             <input type="text" class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-10 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="Search category...">
@@ -76,5 +199,57 @@
                 </div>
             </div>
         </div>
-    </div>
+        <!-- Tabla -->
+        <div class="w-full overflow-x-auto border-sidebar-border bg-sidebar-hover">
+            <table class="min-w-full text-left text-sm text-white">
+                <thead class="bg-sidebar-hover text-[0.8rem] text-primary tracking-wide border-b border-sidebar-border">
+                    <tr
+                        v-for="headerGroup in table.getHeaderGroups()"
+                        :key="headerGroup.id"
+                    >
+                        <th
+                            v-for="header in headerGroup.headers"
+                            :key="header.id"
+                            :colSpan="header.colSpan"
+                            class="px-4 py-3 font-medium whitespace-nowrap text-left align-middle"
+                            >
+                            <FlexRender
+                                v-if="!header.isPlaceholder"
+                                :render="header.column.columnDef.header"
+                                :props="header.getContext()"
+                            />
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody class="divide-y divide-white/5">
+                    <tr
+                        v-for="row in table.getRowModel().rows"
+                        :key="row.id"
+                        class="hover:bg-[#46e99e]/60 transition-colors"
+                    >
+                        <td
+                        v-for="cell in row.getVisibleCells()"
+                        :key="cell.id"
+                        class="px-4 py-3 align-middle text-sm text-gray-200 hover:text-white"
+                        >
+                        <FlexRender
+                            :render="cell.column.columnDef.cell"
+                            :props="cell.getContext()"
+                        />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-4 flex items-center gap-2 border-t border-sidebar-border px-5 py-4">
+        <button
+            @click="rerender"
+            class="px-3 py-2 rounded-md border border-white/20 bg-white/5 text-white/80 text-xs font-medium hover:bg-white/10 hover:text-white transition-colors"
+        >
+            Rerender
+        </button>
+        </div>
+    </div>     
 </template>

@@ -10,8 +10,7 @@ class AdminController extends Controller
 {
     protected $user;
 
-    public function __construct()
-    {
+    public function __construct(){
         $this->middleware('auth');
 
         $this->middleware(function (Request $request, $next) {
@@ -31,12 +30,33 @@ class AdminController extends Controller
             return redirect()->route('home');
         }
 
+        $permissions = $this->user->roles->flatMap(fn($role) => $role->permissions->pluck('slug'))->unique()->values()->toArray();
         $baseProps = [
             'btnActive' => $btnActive,
             'user' => [
                 'haveAccess' => $canAccess,
                 'name' => $this->user->name,
                 'role' => optional($this->user->roles->pluck('name'))->toArray()[0] ?? null,
+                'permissions' => [
+                    'products' => [
+                        'canView' => in_array('view-products', $permissions),
+                        'canCreate' => in_array('create-products', $permissions),
+                        'canEdit' => in_array('update-products', $permissions),
+                        'canDelete' => in_array('delete-products', $permissions),
+                    ],
+                    'orders' => [
+                        'canView' => in_array('view-orders', $permissions),
+                        'canCreate' => in_array('create-orders', $permissions),
+                        'canEdit' => in_array('update-orders', $permissions),
+                        'canDelete' => in_array('delete-orders', $permissions),
+                    ],
+                    'users' => [
+                        'canView' => in_array('view-users', $permissions),
+                        'canCreate' => in_array('create-users', $permissions),
+                        'canEdit' => in_array('update-users', $permissions),
+                        'canDelete' => in_array('delete-users', $permissions),
+                    ]
+                ],
             ],
         ];
 

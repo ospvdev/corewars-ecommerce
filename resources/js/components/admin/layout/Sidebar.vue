@@ -7,15 +7,24 @@
     GridIcon,
     CalenderIcon,
     UserCircleIcon,
+    BarChartIcon,
     PieChartIcon,
     ChevronDownIcon,
-    PageIcon,
+    SettingsIcon,
     TableIcon,
     ListIcon,
+    ArchiveIcon,
     PlugInIcon,
-  } from '@/icons'
+    BoxIcon,
+    InfoIcon,
+    SupportIcon
+  } from '@/icons';
 
-  const data = defineProps<{ btnActive: string, user: { haveAccess?: boolean; name?: string; role?: string } }>();
+  const data = defineProps<{ btnActive: string, user: { haveAccess?: boolean; name?: string; role?: string; permissions?: string[] } }>();
+  const permissions = JSON.parse(JSON.stringify(data.user.permissions))
+
+
+
   const activeBtn = ref<string>(String(data.btnActive || ''));
 
   // Ensure we sync initial server-provided active button after mount (hydration safe)
@@ -27,7 +36,8 @@
     name: string
     path: string
     new?: boolean
-    active?: boolean
+    active?: boolean,
+    permissions?: boolean
   }
 
   interface MenuItem {
@@ -36,6 +46,7 @@
     path?: string | null
     subItems?: SubItem[]
     active?: boolean
+    permissions?: boolean
   }
 
   interface MenuGroup {
@@ -45,21 +56,65 @@
 
   const menuGroups: MenuGroup[] = [
     {
-      title: 'MENU',
+      title: 'ECOMMERCE',
       items: [
-  { icon: GridIcon, name: 'Dashboard', subItems: [{ name: 'eCommerce', path: 'dashboard/ecommerce' }], path: '' },
-  { icon: CalenderIcon, name: 'Calendar', path: '' },
-  { icon: UserCircleIcon, name: 'User Profile', path: '' },
-  { icon: ListIcon, name: 'Forms', subItems: [{ name: 'Form Elements', path: '' }], path: '' },
-  { icon: TableIcon, name: 'Tables', subItems: [{ name: 'Basic Tables', path: '' }], path: '' },
-  { icon: PageIcon, name: 'Pages', subItems: [{ name: 'Black Page', path: '' }, { name: '404 Page', path: '' }], path: '' },
+        { 
+          icon: GridIcon, name: 'Dashboard',
+          path: '/admin',
+          permissions: havePermission('orders', 'canView') 
+        },
+        { 
+          icon: BoxIcon, 
+          name: 'Productos', 
+          subItems: [
+            { name: 'Categorias', path: 'categorias' , permissions: havePermission('products', 'canView')},
+            { name: 'Productos', path: 'productos' , permissions: havePermission('products', 'canView')},
+          ], 
+          path: '' 
+        },
+        { 
+          icon: CalenderIcon, 
+          name: 'Descuentos', 
+          subItems: [
+            { name: 'Ordenes', path: 'dashboard/categorias' , permissions: havePermission('orders', 'canView')},
+            { name: 'Productos', path: 'dashboard/productos' , permissions: havePermission('products', 'canView')},
+          ], 
+          path: '' 
+        },
+        { 
+          icon: ArchiveIcon, 
+          name: 'Pedidos', 
+          subItems: [
+            { name: 'Ordenes', path: 'dashboard/categorias' , permissions: havePermission('orders', 'canView')},
+            { name: 'Productos', path: 'dashboard/productos' , permissions: havePermission('products', 'canView')},
+          ], 
+          path: '' 
+        },
+        { 
+          icon: UserCircleIcon, 
+          name: 'Clientes', 
+          subItems: [
+            { name: 'Ordenes', path: 'dashboard/categorias' , permissions: havePermission('orders', 'canView')},
+            { name: 'Productos', path: 'dashboard/productos' , permissions: havePermission('products', 'canView')},
+          ], 
+          path: '' 
+        },
+        { 
+          icon: SettingsIcon, 
+          name: 'Tienda', 
+          subItems: [
+            { name: 'Ordenes', path: 'dashboard/categorias' , permissions: havePermission('orders', 'canView')},
+            { name: 'Productos', path: 'dashboard/productos' , permissions: havePermission('products', 'canView')},
+          ], 
+          path: '' 
+        }
       ],
     },
     {
-      title: 'OTHERS',
+      title: 'OTRO',
       items: [
-  { icon: PieChartIcon, name: 'Charts', subItems: [{ name: 'Line Chart', path: '' }], path: '' },
-  { icon: PlugInIcon, name: 'Authentication', subItems: [{ name: 'Signin', path: '' }, { name: 'Signup', path: '' }], path: '' },
+        { icon: InfoIcon, name: 'Ayuda', subItems: [{ name: 'Line Chart', path: '' }], path: '' },
+        { icon: SupportIcon, name: 'Documentación', subItems: [{ name: 'Signin', path: '' }, { name: 'Signup', path: '' }], path: '' },
       ],
     },
   ]
@@ -152,91 +207,12 @@
     // console.log('Boton activo: ' + activeBtn.value)
   }
 
+  function havePermission(module: string, action: string): boolean {
+    return permissions[module] && permissions[module][action];
+  }
+
+  console.log('Puede ver productos:', havePermission('users', 'canView'));
 </script>
-
-<template>
-      <aside
-          @mouseenter="onMouseEnter"
-          @mouseleave="onMouseLeave"
-          :class="asideClass"
-        >
-		<div class="mb-6 hidden lg:flex items-center gap-3">
-			<div class="w-12 h-12 rounded-lg flex items-center justify-center bg-primary-ghost">
-				<img src="/img/logo.png" alt="logo" class="w-10 h-10 object-contain" />
-			</div>
-			<div v-if="showExpanded" class="text-2xl font-semibold">TailAdmin</div>
-		</div>
-
-		<nav>
-			<div v-for="(group, gIndex) in menuGroups" :key="group.title" class="mb-6">
-				<div v-if="showExpanded" class="mb-3 text-xs font-medium text-sidebar-muted px-2">{{ group.title }}</div>
-				<ul class="space-y-2">
-					<li v-for="(item, iIndex) in group.items" :key="item.name">
-                        <div :class="[ 'menu-item-row rounded-md overflow-hidden', showExpanded ? 'flex items-center justify-between' : 'flex items-center justify-center', isItemActive(item) ? 'active' : '' ]">
-							<template v-if="item.subItems">
-								<button
-									type="button"
-									class="sidebar-link flex items-center"
-									:class="showExpanded ? 'gap-3 px-2 py-2 rounded-md block flex-1 min-w-0 text-left' : 'justify-center py-2 w-full'"
-									@click="toggleOpen(gIndex + '-' + iIndex)"
-								>
-									<span class="icon-wrap flex items-center justify-center rounded-md" :class="showExpanded ? 'w-8 h-8' : 'w-full'">
-                                        <component :is="item.icon" :class="['w-5 h-5', (isItemActive(item) || hasActiveSubItems(item)) ? 'text-primary' : 'text-sidebar-icon']" />
-									</span>
-                                    <div v-if="showExpanded" class="text-sm font-medium whitespace-nowrap truncate" :class="isItemActive(item) ? 'text-primary' : (hasActiveSubItems(item) ? 'text-sidebar-text text-opacity-90' : 'text-sidebar-text')">{{ item.name }}</div>
-								</button>
-							</template>
-							<template v-else-if="item.path">
-                <Link
-                  :href="buildAdminHref(item.path)"
-									class="sidebar-link"
-									:class="showExpanded ? 'flex items-center gap-3 px-2 py-2 rounded-md block flex-1 min-w-0' : 'flex justify-center py-2 w-full'"
-									:aria-current="isActive(item.path) ? 'page' : undefined"
-                  @click="setActiveBtn(item.name)"
-								>
-									<span class="icon-wrap flex items-center justify-center rounded-md" :class="showExpanded ? 'w-8 h-8' : 'w-full'">
-										<component :is="item.icon" :class="['w-5 h-5', isActive(item.path) ? 'text-primary' : 'text-sidebar-icon']" />
-									</span>
-									<div v-if="showExpanded" class="text-sm font-medium whitespace-nowrap truncate" :class="isActive(item.path) ? 'text-primary' : 'text-sidebar-text'">{{ item.name }}</div>
-								</Link>
-							</template>
-							<template v-else>
-                                <div :class="[ showExpanded ? 'sidebar-link flex items-center gap-3 px-2 py-2 rounded-md' : 'flex justify-center py-3 w-full', hasActiveSubItems(item) ? 'bg-primary-active' : '' ]">
-									<span :class="[ showExpanded ? 'w-8 h-8 flex items-center justify-center rounded-md' : 'w-full flex items-center justify-center' ]">
-                                        <component :is="item.icon" :class="['w-5 h-5', hasActiveSubItems(item) ? 'text-primary' : 'text-sidebar-icon']" />
-									</span>
-									<div v-if="showExpanded" class="text-sm font-medium text-sidebar-text">{{ item.name }}</div>
-								</div>
-							</template>
-							<div v-if="item.subItems && showExpanded" class="pr-2 flex items-center flex-none">
-								<button @click="toggleOpen(gIndex + '-' + iIndex)" class="p-2 rounded-full hover:bg-sidebar-hover">
-									<ChevronDownIcon :class="['w-5 h-5 transition-transform', open[gIndex + '-' + iIndex] ? 'rotate-180 text-primary' : 'text-sidebar-icon']" />
-								</button>
-							</div>
-						</div>
-
-								<ul v-if="item.subItems && open[gIndex + '-' + iIndex] && showExpanded" class="mt-2 ml-10 space-y-1">
-                  <li v-for="sub in item.subItems" :key="sub.name">
-                    <template v-if="sub.path">
-                      <Link :href="buildAdminHref(sub.path)" @click="setActiveBtn(sub.name)" class="sub-link text-sm" :class="(isActive(sub.path) || sub.name === activeBtn) ? 'bg-active text-primary' : 'text-sidebar-sub'">
-                        {{ sub.name }}
-                        <span v-if="sub.new" class="ml-2 inline-block bg-new-ghost text-new text-xs px-2 py-0.5 rounded-full">NEW</span>
-                      </Link>
-                    </template>
-                    <template v-else>
-                      <button type="button" @click="setActiveBtn(sub.name)" class="sub-link text-sm" :class="sub.name === activeBtn ? 'bg-active text-primary' : 'text-sidebar-sub'">
-                        {{ sub.name }}
-                        <span v-if="sub.new" class="ml-2 inline-block bg-new-ghost text-new text-xs px-2 py-0.5 rounded-full">NEW</span>
-                      </button>
-                    </template>
-                  </li>
-								</ul>
-					</li>
-				</ul>
-			</div>
-		</nav>
-	</aside>
-</template>
 
 <style scoped>
 .bg-sidebar-bg { background-color: var(--color-bg-2); }
@@ -288,3 +264,86 @@
 
 </style>
 
+<template>
+  <aside
+      @mouseenter="onMouseEnter"
+      @mouseleave="onMouseLeave"
+      :class="asideClass"
+    >
+		<div class="mb-6 hidden lg:flex items-center gap-3">
+			<div class="w-12 h-12 rounded-lg flex items-center justify-center bg-primary-ghost">
+				<img src="/img/logo.png" alt="logo" class="w-10 h-10 object-contain" />
+			</div>
+			<div v-if="showExpanded" class="text-2xl font-semibold">TailAdmin</div>
+		</div>
+
+		<nav>
+			<div v-for="(group, gIndex) in menuGroups" :key="group.title" class="mb-6">
+				<div v-if="showExpanded" class="mb-3 text-xs font-medium text-sidebar-muted px-2">{{ group.title }}</div>
+				<ul class="space-y-2">
+					<li v-for="(item, iIndex) in group.items" :key="item.name">
+            <div :class="[ 'menu-item-row rounded-md overflow-hidden', showExpanded ? 'flex items-center justify-between' : 'flex items-center justify-center', isItemActive(item) ? 'active' : '' ]">
+							<template v-if="item.subItems">
+								<button
+									type="button"
+									class="sidebar-link flex items-center"
+									:class="showExpanded ? 'gap-3 px-2 py-2 rounded-md block flex-1 min-w-0 text-left' : 'justify-center py-2 w-full'"
+									@click="toggleOpen(gIndex + '-' + iIndex)"
+								>
+									<span class="icon-wrap flex items-center justify-center rounded-md" :class="showExpanded ? 'w-8 h-8' : 'w-full'">
+                    <component :is="item.icon" :class="['w-5 h-5', (isItemActive(item) || hasActiveSubItems(item)) ? 'text-primary' : 'text-sidebar-icon']" />
+									</span>
+                  <div v-if="showExpanded" class="text-sm font-medium whitespace-nowrap truncate" :class="isItemActive(item) ? 'text-primary' : (hasActiveSubItems(item) ? 'text-sidebar-text text-opacity-90' : 'text-sidebar-text')">{{ item.name }}</div>
+								</button>
+							</template>
+							<template v-else-if="item.path">
+                <Link
+                  :href="buildAdminHref(item.path)"
+									class="sidebar-link"
+									:class="showExpanded ? 'flex items-center gap-3 px-2 py-2 rounded-md block flex-1 min-w-0' : 'flex justify-center py-2 w-full'"
+									:aria-current="isActive(item.path) ? 'page' : undefined"
+                  @click="setActiveBtn(item.name)"
+								>
+									<span class="icon-wrap flex items-center justify-center rounded-md" :class="showExpanded ? 'w-8 h-8' : 'w-full'">
+										<component :is="item.icon" :class="['w-5 h-5', isActive(item.path) ? 'text-primary' : 'text-sidebar-icon']" />
+									</span>
+									<div v-if="showExpanded" class="text-sm font-medium whitespace-nowrap truncate" :class="isActive(item.path) ? 'text-primary' : 'text-sidebar-text'">{{ item.name }}</div>
+								</Link>
+							</template>
+							<template v-else>
+                                <div :class="[ showExpanded ? 'sidebar-link flex items-center gap-3 px-2 py-2 rounded-md' : 'flex justify-center py-3 w-full', hasActiveSubItems(item) ? 'bg-primary-active' : '' ]">
+									<span :class="[ showExpanded ? 'w-8 h-8 flex items-center justify-center rounded-md' : 'w-full flex items-center justify-center' ]">
+                                        <component :is="item.icon" :class="['w-5 h-5', hasActiveSubItems(item) ? 'text-primary' : 'text-sidebar-icon']" />
+									</span>
+									<div v-if="showExpanded" class="text-sm font-medium text-sidebar-text">{{ item.name }}</div>
+								</div>
+							</template>
+							<div v-if="item.subItems && showExpanded" class="pr-2 flex items-center flex-none">
+								<button @click="toggleOpen(gIndex + '-' + iIndex)" class="p-2 rounded-full hover:bg-sidebar-hover">
+									<ChevronDownIcon :class="['w-5 h-5 transition-transform', open[gIndex + '-' + iIndex] ? 'rotate-180 text-primary' : 'text-sidebar-icon']" />
+								</button>
+							</div>
+						</div>
+
+            <ul v-if="item.subItems && open[gIndex + '-' + iIndex] && showExpanded" class="mt-2 ml-10 space-y-1">
+              <li v-for="sub in item.subItems" :key="sub.name">
+                <template v-if="sub.path">
+                  <Link v-show="sub.permissions" :href="buildAdminHref(sub.path)" @click="setActiveBtn(sub.name)" class="sub-link text-sm" :class="(isActive(sub.path) || sub.name === activeBtn) ? 'bg-active text-primary' : 'text-sidebar-sub'">
+                    {{ sub.name }}
+                    <span v-if="sub.new" class="ml-2 inline-block bg-new-ghost text-new text-xs px-2 py-0.5 rounded-full">NEW</span>
+                  </Link>
+                </template>
+                <template v-else>
+                  <button type="button" @click="setActiveBtn(sub.name)" class="sub-link text-sm" :class="sub.name === activeBtn ? 'bg-active text-primary' : 'text-sidebar-sub'">
+                    {{ sub.name }}
+                    <span v-if="sub.new" class="ml-2 inline-block bg-new-ghost text-new text-xs px-2 py-0.5 rounded-full">NEW</span>
+                  </button>
+                </template>
+              </li>
+            </ul>
+					</li>
+				</ul>
+			</div>
+		</nav>
+	</aside>
+</template>

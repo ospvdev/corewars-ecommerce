@@ -1,0 +1,299 @@
+<script setup lang="ts">
+    import {
+        FlexRender,
+        getCoreRowModel,
+        getPaginationRowModel,
+        useVueTable,
+        CellContext,
+        RowSelectionState
+    } from '@tanstack/vue-table';
+
+    import { ref, h } from 'vue';
+    import IndeterminateCheckbox from '@/components/admin/layout/ecommerce/IndeterminateCheckbox.vue';
+    import productsTest from '@/test/products.json';
+
+    type Product = {
+        id: number;
+        name: string;
+        price: number;
+        sku: string;
+        stock: number;
+        position: number;
+        status: boolean;
+        img: string;
+    }
+
+    const INITIAL_PAGE_INDEX = 0;
+    const goToPageNumber = ref(INITIAL_PAGE_INDEX + 1);
+    const pageSizes = [10, 20, 30, 50, 100];
+    const defaultData: Product[] = productsTest.products;
+    const columns = [
+        {
+            id: 'select',
+            header: ({ table }: { table: any }) => {
+                return h(IndeterminateCheckbox, {
+                    checked: table.getIsAllRowsSelected(),
+                    indeterminate: table.getIsSomeRowsSelected(),
+                    onChange: table.getToggleAllRowsSelectedHandler()
+                });
+            },
+            cell: ({ row }: { row: any }) => {
+                return h('div', [
+                    h(IndeterminateCheckbox, {
+                        checked: row.getIsSelected(),
+                        indeterminate: row.getIsSomeSelected(),
+                        onChange: row.getToggleSelectedHandler()
+                    })
+                ]);
+            },
+        },
+        {
+            header: 'ID',
+            accessorKey: 'id',
+        },
+        {
+            header: 'Producto',
+            accessorKey: 'name',
+            cell: (info: CellContext<Product, string>) => {
+                const product = info.row.original;
+                const src = product.img ?? 'https://picsum.photos/id/63/200/200';
+                return h('div', { class: 'flex items-center gap-3' }, [
+                    h('img', {
+                        src,
+                        alt: product.name,
+                        class: 'w-10 h-10 rounded-md object-cover',
+                        loading: 'lazy'
+                    }),
+                    h('div', { class: 'text-sm' }, product.name)
+                ]);
+            }
+        },
+        {
+            header: 'Referencia',
+            accessorKey: 'sku',
+        },
+        {
+            header: 'Precio',
+            accessorKey: 'price',
+            cell: (info: CellContext<Product, number>) => formatCurrency(info.getValue(), true)
+        },
+        {
+            header: 'Stock',
+            accessorKey: 'stock',
+        },
+        {
+            header: 'Posición',
+            accessorKey: 'position',
+        }
+        ,
+        {
+            header: 'Estado',
+            accessorKey: 'status',
+        }
+    ];
+    const data = ref(defaultData);
+    const rerender = () => {
+        data.value = defaultData;
+    }
+    const rowSelection = ref<RowSelectionState>({});
+    const table = useVueTable({
+        get data() {
+            return data.value;
+        },
+        columns,
+        state: {
+            get rowSelection() {
+                return rowSelection.value
+            },
+        },
+        getPaginationRowModel: getPaginationRowModel(),
+        initialState: {
+            pagination: {
+                pageIndex: 0, // pagina inicial
+                pageSize: 30, // tamaño de pagina
+            },
+        },
+        enableRowSelection: true,
+        onRowSelectionChange: updateOrValue => {
+            rowSelection.value =
+            typeof updateOrValue === 'function'
+                ? updateOrValue(rowSelection.value)
+                : updateOrValue
+        },
+        getCoreRowModel: getCoreRowModel(),
+    });
+
+    const totalProducts = ref(data.value.length);
+
+    function formatCurrency(value: number, money?: boolean): string {
+        if (money) {
+            return '$' + value.toLocaleString();
+        }
+        return value.toLocaleString();
+    }
+
+    // Navegación de paginas
+    function handleGoToPage(e: any) {
+        const page = e.target.value ? Number(e.target.value) - 1 : 0;
+        goToPageNumber.value = page + 1;
+        table.setPageIndex(page);
+    }
+
+    function handlePageSizeChange(e: any) {
+        table.setPageSize(Number(e.target.value));
+    }
+</script>
+
+<style scoped>
+
+</style>
+
+<template>
+    <!-- Convertir en componente dinamico :title :route_main :route_page :url -->
+    <div x-data="{ pageName: `Products` }">
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-6">
+            <h2 class="text-xl font-semibold text-gray-800 dark:text-white/90" x-text="pageName">Productos</h2>
+            <nav>
+                <ol class="flex items-center gap-1.5">
+                    <li>
+                        <a class="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400" href="index.html">
+                            Dashboard
+                            <svg class="stroke-current" width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M6.0765 12.667L10.2432 8.50033L6.0765 4.33366" stroke="" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                        </a>
+                    </li>
+                    <li class="text-sm text-gray-800 dark:text-white/90" x-text="pageName">Productos</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    <div class="overflow-hidden rounded-md border border-sidebar-border bg-sidebar-hover">
+        <div class="flex flex-col justify-between gap-5 px-5 py-4 sm:flex-row sm:items-center dark:border-gray-800">
+            <div>
+                <h3 class="text-lg font-semibold text-white/90">Lista de Productos</h3>
+                <p class="text-sm text-gray-400">Total de productos: {{ totalProducts }}</p>
+            </div>
+            <div class="flex gap-3">
+                <button class="inline-flex items-center gap-2 rounded-lg border border-sidebar-border bg-sidebar-hover px-4 py-2.5 font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200">
+                    Exportar
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M16.667 13.3333V15.4166C16.667 16.1069 16.1074 16.6666 15.417 16.6666H4.58295C3.89259 16.6666 3.33295 16.1069 3.33295 15.4166V13.3333M10.0013 13.3333L10.0013 3.33325M6.14547 9.47942L9.99951 13.331L13.8538 9.47942" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                </button>
+                <a href="add-product.html" class="bg-primary hover:bg-primary/80 inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M5 10.0002H15.0006M10.0002 5V15.0006" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                    Crear Producto
+                </a>
+            </div>
+        </div>
+        <!--Buscador y filtro-->
+        <div class="border-b border-t border-sidebar-border px-5 py-4">
+            <div class="flex gap-3 sm:justify-between">
+                <div class="relative flex-1 sm:flex-auto">
+                    <span class="absolute top-1/2 left-4 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+                        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M3.04199 9.37363C3.04199 5.87693 5.87735 3.04199 9.37533 3.04199C12.8733 3.04199 15.7087 5.87693 15.7087 9.37363C15.7087 12.8703 12.8733 15.7053 9.37533 15.7053C5.87735 15.7053 3.04199 12.8703 3.04199 9.37363ZM9.37533 1.54199C5.04926 1.54199 1.54199 5.04817 1.54199 9.37363C1.54199 13.6991 5.04926 17.2053 9.37533 17.2053C11.2676 17.2053 13.0032 16.5344 14.3572 15.4176L17.1773 18.238C17.4702 18.5309 17.945 18.5309 18.2379 18.238C18.5308 17.9451 18.5309 17.4703 18.238 17.1773L15.4182 14.3573C16.5367 13.0033 17.2087 11.2669 17.2087 9.37363C17.2087 5.04817 13.7014 1.54199 9.37533 1.54199Z" fill=""></path>
+                        </svg>
+                    </span>
+                    <input type="text" placeholder="Buscar..." class="h-11 w-full rounded-lg border border-sidebar-border py-2.5 pr-4 pl-11 text-sm placeholder:text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-[#46e99e] sm:w-[300px] sm:min-w-[300px] bg-sidebar text-white/90 placeholder:text-white/30">
+                </div>
+                <div class="relative" x-data="{ showFilter: false }">
+                    <button class="flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-sidebar-border bg-sidebar-hover hover:bg-gray-50 hover:text-gray-200 text-gray-400 hover:bg-white/[0.03] px-4 py-2.5 text-sm font-medium sm:w-auto sm:min-w-[100px]" type="button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M14.6537 5.90414C14.6537 4.48433 13.5027 3.33331 12.0829 3.33331C10.6631 3.33331 9.51206 4.48433 9.51204 5.90415M14.6537 5.90414C14.6537 7.32398 13.5027 8.47498 12.0829 8.47498C10.663 8.47498 9.51204 7.32398 9.51204 5.90415M14.6537 5.90414L17.7087 5.90411M9.51204 5.90415L2.29199 5.90411M5.34694 14.0958C5.34694 12.676 6.49794 11.525 7.91777 11.525C9.33761 11.525 10.4886 12.676 10.4886 14.0958M5.34694 14.0958C5.34694 15.5156 6.49794 16.6666 7.91778 16.6666C9.33761 16.6666 10.4886 15.5156 10.4886 14.0958M5.34694 14.0958L2.29199 14.0958M10.4886 14.0958L17.7087 14.0958" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                        Filtrar
+                    </button>
+                    <div x-show="showFilter" class="absolute right-0 z-10 mt-2 w-56 rounded-lg border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800" style="display: none;">
+                        <div class="mb-5">
+                            <label class="mb-2 block text-xs font-medium text-gray-700 dark:text-gray-300">Category</label>
+                            <input type="text" class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-10 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="Search category...">
+                        </div>
+                        <div class="mb-5">
+                            <label class="mb-2 block text-xs font-medium text-gray-700 dark:text-gray-300">Company</label>
+                            <input type="text" class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-10 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" placeholder="Search company...">
+                        </div>
+                        <button class="bg-brand-500 hover:bg-brand-600 h-10 w-full rounded-lg px-3 py-2 text-sm font-medium text-white">Apply</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Tabla -->
+        <div class="w-full overflow-x-auto border-sidebar-border">
+            <table class="min-w-full text-left text-sm text-white">
+                <thead class="text-[0.8rem] text-primary tracking-wide border-b border-sidebar-border">
+                    <tr
+                        v-for="headerGroup in table.getHeaderGroups()"
+                        :key="headerGroup.id"
+                    >
+                        <th
+                            v-for="header in headerGroup.headers"
+                            :key="header.id"
+                            :colSpan="header.colSpan"
+                            class="px-4 py-3 font-medium whitespace-nowrap text-left align-middle"
+                            >
+                            <FlexRender
+                                v-if="!header.isPlaceholder"
+                                :render="header.column.columnDef.header"
+                                :props="header.getContext()"
+                            />
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody class="divide-y divide-white/2">
+                    <tr
+                        v-for="row in table.getRowModel().rows"
+                        :key="row.id"
+                        class="hover:bg-[#232530] transition-colors"
+                    >
+                        <td
+                        v-for="cell in row.getVisibleCells()"
+                        :key="cell.id"
+                        class="px-4 py-3 align-middle text-sm text-gray-200 hover:text-white"
+                        >
+                        <FlexRender
+                            :render="cell.column.columnDef.cell"
+                            :props="cell.getContext()"
+                        />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center sm:items-center gap-3 border-t border-sidebar-border px-5 py-4">
+            <!-- <button
+                @click="rerender()"
+                class="px-3 py-2 rounded-md border border-white/20 bg-white/5 text-white/80 text-xs font-medium hover:bg-white/10 hover:text-white transition-colors"
+            >
+                Rerender
+            </button> -->
+            
+            <span class="flex items-center gap-1 text-gray-400">
+                <div>Página</div>
+                <strong>
+                    {{ table.getState().pagination.pageIndex + 1 }} de
+                    {{ table.getPageCount() }}
+                </strong>
+            </span>
+            <!-- <span class="flex items-center gap-1">
+                | Ir a página:
+                <input type="number" :value="goToPageNumber" @change="handleGoToPage" class="border p-1 rounded w-16"/>
+            </span> -->
+            <select :value="table.getState().pagination.pageSize" @change="handlePageSizeChange" class="text-gray-400 h-9 rounded bg-transparent border border-sidebar-border px-2 text-sm">
+                <option :key="pageSize" :value="pageSize" v-for="pageSize in pageSizes">Mostrar {{ pageSize }}</option>
+            </select>
+
+            <div class="sm:ml-auto flex items-center gap-2">
+                <button class="px-3 py-2 rounded-md border border-sidebar-border bg-transparent text-gray-400 text-xs font-medium hover:bg-primary hover:text-white transition-colors" @click="() => table.firstPage()" :disabled="!table.getCanPreviousPage()"><i class="fa-solid fa-backward-step"></i></button>
+                <button class="px-3 py-2 rounded-md border border-sidebar-border bg-transparent text-gray-400 text-xs font-medium hover:bg-primary hover:text-white transition-colors" @click="() => table.previousPage()" :disabled="!table.getCanPreviousPage()"><i class="fa-solid fa-caret-left"></i></button>
+                <button class="px-3 py-2 rounded-md border border-sidebar-border bg-transparent text-gray-400 text-xs font-medium hover:bg-primary hover:text-white transition-colors" @click="() => table.nextPage()" :disabled="!table.getCanNextPage()"><i class="fa-solid fa-caret-right"></i></button>
+                <button class="px-3 py-2 rounded-md border border-sidebar-border bg-transparent text-gray-400 text-xs font-medium hover:bg-primary hover:text-white transition-colors" @click="() => table.lastPage()" :disabled="!table.getCanNextPage()"><i class="fa-solid fa-forward-step"></i></button>
+            </div>
+        </div>
+    </div>     
+</template>

@@ -8,7 +8,7 @@ class DashboardAdminController extends AdminController
         return $this->renderAdmin('admin/dashboard/Ecommerce', 'eCommerce');
     }
 
-    public function ecommerce(){
-        return $this->renderAdmin('admin/dashboard/Ecommerce', 'eCommerce');
+    public function products(){
+        return $this->renderAdmin('admin/products/Products', 'Products');
     }
 }
